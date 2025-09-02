@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Operasi Dasar Pengolahan Sinyal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.26.0/plotly.min.js"></script>
+    <style>
+      * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+      }
+
+      body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          min-height: 100vh;
+          padding: 20px;
+      }
+
+      .container {
+          max-width: 1400px;
+          margin: 0 auto;
+          background: rgba(255, 255, 255, 0.95);
+          border-radius: 20px;
+          padding: 30px;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      }
+
+      h1 {
+          color: #333;
+          text-align: center;
+          margin-bottom: 10px;
+          font-size: 2.5em;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+      }
+
+      .subtitle {
+          text-align: center;
+          color: #666;
+          margin-bottom: 30px;
+      }
+
+      .section {
+          margin-bottom: 40px;
+          padding: 25px;
+          background: linear-gradient(145deg, #f8f9fa, #ffffff);
+          border-radius: 15px;
+          box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      }
+
+      .section h2 {
+          color: #4a5568;
+          margin-bottom: 20px;
+          padding-bottom: 10px;
+          border-bottom: 3px solid #667eea;
+      }
+
+      .controls {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 15px;
+          margin-bottom: 20px;
+      }
+
+      .control-group {
+          display: flex;
+          flex-direction: column;
+      }
+
+      label {
+          color: #4a5568;
+          font-weight: 600;
+          margin-bottom: 5px;
+          font-size: 0.9em;
+      }
+
+      input[type="range"] {
+          width: 100%;
+          height: 6px;
+          background: linear-gradient(90deg, #667eea, #764ba2);
+          border-radius: 5px;
+          outline: none;
+          -webkit-appearance: none;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 20px;
+          height: 20px;
+          background: #667eea;
+          cursor: pointer;
+          border-radius: 50%;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      }
+
+      select, button {
+          padding: 10px 15px;
+          border: 2px solid #667eea;
+          border-radius: 8px;
+          background: white;
+          color: #4a5568;
+          font-size: 14px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+      }
+
+      button {
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          color: white;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+      }
+
+      button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .plot-container {
+          margin: 20px 0;
+          border-radius: 10px;
+          overflow: hidden;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      }
+
+      .value-display {
+          color: #764ba2;
+          font-weight: bold;
+          margin-left: 10px;
+      }
+
+      .explanation {
+          background: linear-gradient(145deg, #f0f4ff, #ffffff);
+          padding: 20px;
+          border-radius: 10px;
+          margin-top: 20px;
+          border-left: 4px solid #667eea;
+      }
+
+      .explanation h3 {
+          color: #4a5568;
+          margin-bottom: 10px;
+      }
+
+      .explanation p {
+          color: #666;
+          line-height: 1.6;
+      }
+
+      .formula {
+          background: #f8f9fa;
+          padding: 15px;
+          border-radius: 8px;
+          margin: 10px 0;
+          font-family: 'Courier New', monospace;
+          color: #2d3748;
+          border: 1px solid #e2e8f0;
+      }
+
+      .tabs {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 20px;
+          border-bottom: 2px solid #e2e8f0;
+      }
+
+      .tab {
+          padding: 10px 20px;
+          background: none;
+          border: none;
+          color: #718096;
+          cursor: pointer;
+          transition: all 0.3s;
+          border-bottom: 3px solid transparent;
+      }
+
+      .tab.active {
+          color: #667eea;
+          border-bottom-color: #667eea;
+          background: linear-gradient(to bottom, rgba(102, 126, 234, 0.1), transparent);
+      }
+
+      .tab-content {
+          display: none;
+      }
+
+      .tab-content.active {
+          display: block;
+          animation: fadeIn 0.5s;
+      }
+
+      @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+      }
+
+      .grid-2 {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+      }
+
+      @media (max-width: 768px) {
+          .grid-2 {
+              grid-template-columns: 1fr;
+          }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎯 Operasi Dasar Pengolahan Sinyal</h1>
+      <p class="subtitle">
+        Eksplorasi Interaktif Sinyal 1D dan 2D dengan Python
+      </p>
+
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('1d')">Sinyal 1D</button>
+        <button class="tab" onclick="switchTab('2d')">Sinyal 2D</button>
+        <button class="tab" onclick="switchTab('kombinasi')">
+          Kombinasi Operasi
+        </button>
+        <button class="tab" onclick="switchTab('teori')">
+          Teori & Refleksi
+        </button>
+      </div>
+
+      <!-- Tab 1D Signal -->
+      <div id="tab-1d" class="tab-content active">
+        <div class="section">
+          <h2>📊 Sinyal 1D - Operasi Dasar</h2>
+
+          <div class="controls">
+            <div class="control-group">
+              <label>Jenis Sinyal:</label>
+              <select id="signalType" onchange="updateSignal1D()">
+                <option value="sine">Sinusoidal</option>
+                <option value="square">Square Wave</option>
+                <option value="sawtooth">Sawtooth</option>
+                <option value="gaussian">Gaussian Pulse</option>
+                <option value="chirp">Chirp Signal</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label
+                >Frekuensi:
+                <span id="freqValue" class="value-display">2</span> Hz</label
+              >
+              <input
+                type="range"
+                id="frequency"
+                min="0.5"
+                max="10"
+                value="2"
+                step="0.5"
+                oninput="updateSignal1D()"
+              />
+            </div>
+
+            <div class="control-group">
+              <label
+                >Amplitudo:
+                <span id="ampValue" class="value-display">1</span></label
+              >
+              <input
+                type="range"
+                id="amplitude"
+                min="0.1"
+                max="3"
+                value="1"
+                step="0.1"
+                oninput="updateSignal1D()"
+              />
+            </div>
+
+            <div class="control-group">
+              <label
+                >Fase (rad):
+                <span id="phaseValue" class="value-display">0</span></label
+              >
+              <input
+                type="range"
+                id="phase"
+                min="0"
+                max="6.28"
+                value="0"
+                step="0.1"
+                oninput="updateSignal1D()"
+              />
+            </div>
+          </div>
+
+          <div class="controls">
+            <div class="control-group">
+              <label>Operasi:</label>
+              <select id="operation" onchange="updateSignal1D()">
+                <option value="original">Original</option>
+                <option value="scale">Penskalaan</option>
+                <option value="shift">Penggeseran</option>
+                <option value="add">Penjumlahan</option>
+                <option value="multiply">Perkalian</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label
+                >Parameter Operasi:
+                <span id="opParamValue" class="value-display">1</span></label
+              >
+              <input
+                type="range"
+                id="opParam"
+                min="-3"
+                max="3"
+                value="1"
+                step="0.1"
+                oninput="updateSignal1D()"
+              />
+            </div>
+
+            <div class="control-group">
+              <label
+                >Noise Level:
+                <span id="noiseValue" class="value-display">0</span></label
+              >
+              <input
+                type="range"
+                id="noise"
+                min="0"
+                max="1"
+                value="0"
+                step="0.05"
+                oninput="updateSignal1D()"
+              />
+            </div>
+          </div>
+
+          <div id="plot1D" class="plot-container"></div>
+
+          <div class="explanation">
+            <h3>📖 Penjelasan Operasi</h3>
+            <p id="operationExplanation">
+              Pilih operasi untuk melihat penjelasannya.
+            </p>
+            <div class="formula" id="operationFormula"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2D Signal -->
+      <div id="tab-2d" class="tab-content">
+        <div class="section">
+          <h2>🎨 Sinyal 2D - Image Processing</h2>
+
+          <div class="controls">
+            <div class="control-group">
+              <label>Pola 2D:</label>
+              <select id="pattern2D" onchange="updateSignal2D()">
+                <option value="sinusoid">Sinusoid 2D</option>
+                <option value="gaussian">Gaussian Blob</option>
+                <option value="checkerboard">Checkerboard</option>
+                <option value="gradient">Gradient</option>
+                <option value="circle">Circular Pattern</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>Ukuran Grid:</label>
+              <select id="gridSize" onchange="updateSignal2D()">
+                <option value="32">32x32</option>
+                <option value="64" selected>64x64</option>
+                <option value="128">128x128</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>Filter:</label>
+              <select id="filter2D" onchange="updateSignal2D()">
+                <option value="none">None</option>
+                <option value="blur">Gaussian Blur</option>
+                <option value="edge">Edge Detection</option>
+                <option value="sharpen">Sharpen</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label
+                >Rotasi (°):
+                <span id="rotValue" class="value-display">0</span></label
+              >
+              <input
+                type="range"
+                id="rotation"
+                min="0"
+                max="360"
+                value="0"
+                step="15"
+                oninput="updateSignal2D()"
+              />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div id="plot2D_original" class="plot-container"></div>
+            <div id="plot2D_processed" class="plot-container"></div>
+          </div>
+
+          <div class="explanation">
+            <h3>🔍 Analisis Sinyal 2D</h3>
+            <p id="analysis2D">
+              Sinyal 2D merepresentasikan data dalam bentuk matriks, seperti
+              gambar digital.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Kombinasi -->
+      <div id="tab-kombinasi" class="tab-content">
+        <div class="section">
+          <h2>🔗 Kombinasi Operasi Sinyal</h2>
+
+          <div class="controls">
+            <div class="control-group">
+              <label>Sinyal 1:</label>
+              <select id="signal1" onchange="updateCombination()">
+                <option value="sine">Sine</option>
+                <option value="cosine">Cosine</option>
+                <option value="square">Square</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>Sinyal 2:</label>
+              <select id="signal2" onchange="updateCombination()">
+                <option value="sine">Sine</option>
+                <option value="cosine">Cosine</option>
+                <option value="square">Square</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>Operasi Kombinasi:</label>
+              <select id="combOp" onchange="updateCombination()">
+                <option value="add">Penjumlahan</option>
+                <option value="subtract">Pengurangan</option>
+                <option value="multiply">Perkalian</option>
+                <option value="convolve">Konvolusi</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label
+                >Bobot α:
+                <span id="weightValue" class="value-display">0.5</span></label
+              >
+              <input
+                type="range"
+                id="weight"
+                min="0"
+                max="1"
+                value="0.5"
+                step="0.05"
+                oninput="updateCombination()"
+              />
+            </div>
+          </div>
+
+          <div id="plotCombination" class="plot-container"></div>
+
+          <div class="explanation">
+            <h3>⚡ Hasil Kombinasi</h3>
+            <p id="combinationResult">
+              Kombinasi sinyal menghasilkan sinyal baru dengan karakteristik
+              gabungan.
+            </p>
+            <div class="formula" id="combinationFormula"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Teori -->
+      <div id="tab-teori" class="tab-content">
+        <div class="section">
+          <h2>📚 Teori & Refleksi</h2>
+
+          <div class="explanation">
+            <h3>🎯 Konsep Dasar Pengolahan Sinyal</h3>
+            <p>
+              Pengolahan sinyal digital adalah manipulasi sinyal menggunakan
+              komputer atau prosesor digital. Operasi dasar meliputi:
+            </p>
+
+            <h4>1. Representasi Sinyal</h4>
+            <ul style="margin-left: 20px; color: #666">
+              <li>
+                <strong>Sinyal 1D:</strong> f(t) atau f[n] - fungsi dari waktu
+                atau indeks diskrit
+              </li>
+              <li>
+                <strong>Sinyal 2D:</strong> f(x,y) atau f[m,n] - fungsi dari
+                koordinat spasial
+              </li>
+            </ul>
+
+            <h4>2. Operasi Dasar</h4>
+            <div class="formula">
+              Penskalaan: y(t) = a · x(t) Penggeseran: y(t) = x(t - τ)
+              Penjumlahan: y(t) = x₁(t) + x₂(t) Perkalian: y(t) = x₁(t) · x₂(t)
+            </div>
+
+            <h4>3. Transformasi Penting</h4>
+            <ul style="margin-left: 20px; color: #666">
+              <li>
+                <strong>Fourier Transform:</strong> Mengubah sinyal dari domain
+                waktu ke domain frekuensi
+              </li>
+              <li>
+                <strong>Konvolusi:</strong> Operasi fundamental untuk filtering
+                dan sistem LTI
+              </li>
+              <li>
+                <strong>Sampling:</strong> Konversi sinyal kontinu ke diskrit
+                (Teorema Nyquist)
+              </li>
+            </ul>
+
+            <h4>4. Aplikasi Praktis</h4>
+            <ul style="margin-left: 20px; color: #666">
+              <li>Audio Processing: Noise reduction, compression, effects</li>
+              <li>Image Processing: Enhancement, restoration, compression</li>
+              <li>Communications: Modulation, coding, channel equalization</li>
+              <li>Biomedical: ECG/EEG analysis, medical imaging</li>
+            </ul>
+
+            <h3>💡 Refleksi Eksperimen</h3>
+            <p>Melalui eksperimen interaktif ini, kita dapat mengamati:</p>
+            <ol style="margin-left: 20px; color: #666">
+              <li>
+                <strong>Linearitas:</strong> Kombinasi linear sinyal
+                menghasilkan output yang dapat diprediksi
+              </li>
+              <li>
+                <strong>Time/Space Invariance:</strong> Penggeseran sinyal tidak
+                mengubah karakteristik dasarnya
+              </li>
+              <li>
+                <strong>Superposisi:</strong> Sinyal kompleks dapat diuraikan
+                menjadi komponen sederhana
+              </li>
+              <li>
+                <strong>Filtering:</strong> Modifikasi selektif komponen
+                frekuensi sinyal
+              </li>
+            </ol>
+
+            <h3>🔬 Kesimpulan</h3>
+            <p>
+              Pemahaman operasi dasar pengolahan sinyal membuka pintu untuk
+              aplikasi advanced seperti: machine learning, computer vision, dan
+              real-time signal processing. Konsep fundamental ini menjadi dasar
+              untuk memahami sistem yang lebih kompleks dalam dunia digital
+              modern.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Global variables
+      let currentTab = "1d";
+
+      // Tab switching
+      function switchTab(tab) {
+        currentTab = tab;
+
+        // Update tab buttons
+        document
+          .querySelectorAll(".tab")
+          .forEach((t) => t.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((c) => c.classList.remove("active"));
+
+        event.target.classList.add("active");
+        document.getElementById(`tab-${tab}`).classList.add("active");
+
+        // Initialize plots for active tab
+        if (tab === "1d") updateSignal1D();
+        else if (tab === "2d") updateSignal2D();
+        else if (tab === "kombinasi") updateCombination();
+      }
+
+      // Generate time array
+      function linspace(start, stop, num) {
+        const step = (stop - start) / (num - 1);
+        return Array.from({ length: num }, (_, i) => start + step * i);
+      }
+
+      // Generate signals
+      function generateSignal(type, t, freq, amp, phase) {
+        switch (type) {
+          case "sine":
+            return t.map((x) => amp * Math.sin(2 * Math.PI * freq * x + phase));
+          case "cosine":
+            return t.map((x) => amp * Math.cos(2 * Math.PI * freq * x + phase));
+          case "square":
+            return t.map(
+              (x) => amp * Math.sign(Math.sin(2 * Math.PI * freq * x + phase))
+            );
+          case "sawtooth":
+            return t.map((x) => amp * (2 * ((freq * x) % 1) - 1));
+          case "gaussian":
+            const sigma = 0.5 / freq;
+            const mu = 2.5;
+            return t.map(
+              (x) => amp * Math.exp(-0.5 * Math.pow((x - mu) / sigma, 2))
+            );
+          case "chirp":
+            return t.map(
+              (x) =>
+                amp * Math.sin(2 * Math.PI * (freq * x + 0.5 * freq * x * x))
+            );
+          default:
+            return t.map((x) => 0);
+        }
+      }
+
+      // Apply operations
+      function applyOperation(signal, operation, param) {
+        switch (operation) {
+          case "scale":
+            return signal.map((x) => x * param);
+          case "shift":
+            const shiftSamples = Math.floor(param * 10);
+            const shifted = new Array(signal.length).fill(0);
+            for (let i = 0; i < signal.length; i++) {
+              const newIdx = i - shiftSamples;
+              if (newIdx >= 0 && newIdx < signal.length) {
+                shifted[i] = signal[newIdx];
+              }
+            }
+            return shifted;
+          case "add":
+            return signal.map((x) => x + param);
+          case "multiply":
+            const t = linspace(0, 5, signal.length);
+            const modSignal = generateSignal("sine", t, param, 1, 0);
+            return signal.map((x, i) => x * modSignal[i]);
+          default:
+            return signal;
+        }
+      }
+
+      // Update 1D Signal Plot
+      function updateSignal1D() {
+        const signalType = document.getElementById("signalType").value;
+        const freq = parseFloat(document.getElementById("frequency").value);
+        const amp = parseFloat(document.getElementById("amplitude").value);
+        const phase = parseFloat(document.getElementById("phase").value);
+        const operation = document.getElementById("operation").value;
+        const opParam = parseFloat(document.getElementById("opParam").value);
+        const noiseLevel = parseFloat(document.getElementById("noise").value);
+
+        // Update display values
+        document.getElementById("freqValue").textContent = freq;
+        document.getElementById("ampValue").textContent = amp.toFixed(1);
+        document.getElementById("phaseValue").textContent = phase.toFixed(1);
+        document.getElementById("opParamValue").textContent =
+          opParam.toFixed(1);
+        document.getElementById("noiseValue").textContent =
+          noiseLevel.toFixed(2);
+
+        // Generate signals
+        const t = linspace(0, 5, 500);
+        let original = generateSignal(signalType, t, freq, amp, phase);
+
+        // Add noise
+        if (noiseLevel > 0) {
+          original = original.map(
+            (x) => x + (Math.random() - 0.5) * noiseLevel * 2
+          );
+        }
+
+        let processed = applyOperation(original, operation, opParam);
+
+        // Create plots
+        const trace1 = {
+          x: t,
+          y: original,
+          name: "Original",
+          type: "scatter",
+          line: { color: "#667eea", width: 2 },
+        };
+
+        const trace2 = {
+          x: t,
+          y: processed,
+          name: "Processed",
+          type: "scatter",
+          line: { color: "#764ba2", width: 2, dash: "dash" },
+        };
+
+        const layout = {
+          title: "Sinyal 1D - Visualisasi",
+          xaxis: { title: "Waktu (s)" },
+          yaxis: { title: "Amplitudo" },
+          showlegend: true,
+          hovermode: "x unified",
+          plot_bgcolor: "#f8f9fa",
+          paper_bgcolor: "white",
+        };
+
+        Plotly.newPlot("plot1D", [trace1, trace2], layout, {
+          responsive: true,
+        });
+
+        // Update explanation
+        updateExplanation(operation, opParam);
+      }
+
+      // Update explanation based on operation
+      function updateExplanation(operation, param) {
+        const explanations = {
+          original: {
+            text: "Sinyal original tanpa modifikasi. Ini adalah bentuk dasar sinyal yang dihasilkan.",
+            formula: "y(t) = x(t)",
+          },
+          scale: {
+            text: `Penskalaan amplitudo dengan faktor ${param.toFixed(
+              1
+            )}. Mengubah kekuatan sinyal tanpa mengubah frekuensi atau fase.`,
+            formula: `y(t) = ${param.toFixed(1)} × x(t)`,
+          },
+          shift: {
+            text: `Penggeseran temporal sebesar ${(param * 10).toFixed(
+              0
+            )} sampel. Menggeser sinyal dalam domain waktu.`,
+            formula: `y(t) = x(t - ${param.toFixed(1)})`,
+          },
+          add: {
+            text: `Penambahan konstanta DC offset sebesar ${param.toFixed(
+              1
+            )}. Menggeser baseline sinyal.`,
+            formula: `y(t) = x(t) + ${param.toFixed(1)}`,
+          },
+          multiply: {
+            text: `Modulasi amplitudo dengan sinyal sinusoidal frekuensi ${param.toFixed(
+              1
+            )} Hz. Menghasilkan efek beating.`,
+            formula: `y(t) = x(t) × sin(2π × ${param.toFixed(1)} × t)`,
+          },
+        };
+
+        const exp = explanations[operation] || explanations["original"];
+        document.getElementById("operationExplanation").textContent = exp.text;
+        document.getElementById("operationFormula").textContent = exp.formula;
+      }
+
+      // Generate 2D patterns
+      function generate2DPattern(pattern, size) {
+        const data = [];
+        for (let i = 0; i < size; i++) {
+          const row = [];
+          for (let j = 0; j < size; j++) {
+            const x = i / size;
+            const y = j / size;
+            let value = 0;
+
+            switch (pattern) {
+              case "sinusoid":
+                value =
+                  Math.sin(2 * Math.PI * 3 * x) * Math.cos(2 * Math.PI * 3 * y);
+                break;
+              case "gaussian":
+                const cx = 0.5,
+                  cy = 0.5,
+                  sigma = 0.2;
+                value = Math.exp(
+                  -((x - cx) * (x - cx) + (y - cy) * (y - cy)) /
+                    (2 * sigma * sigma)
+                );
+                break;
+              case "checkerboard":
+                value = ((Math.floor(i / 8) + Math.floor(j / 8)) % 2) * 2 - 1;
+                break;
+              case "gradient":
+                value = (x + y) / 2;
+                break;
+              case "circle":
+                const r = Math.sqrt(
+                  (x - 0.5) * (x - 0.5) + (y - 0.5) * (y - 0.5)
+                );
+                value = Math.sin(20 * r) * Math.exp(-5 * r);
+                break;
+            }
+            row.push(value);
+          }
+          data.push(row);
+        }
+        return data;
+      }
+
+      // Apply 2D filters
+      function apply2DFilter(data, filter) {
+        const size = data.length;
+        const filtered = [];
+
+        for (let i = 0; i < size; i++) {
+          const row = [];
+          for (let j = 0; j < size; j++) {
+            let value = data[i][j];
+
+            if (
+              filter === "blur" &&
+              i > 0 &&
+              i < size - 1 &&
+              j > 0 &&
+              j < size - 1
+            ) {
+              // Simple 3x3 Gaussian blur
+              value =
+                (data[i][j] * 4 +
+                  data[i - 1][j] * 2 +
+                  data[i + 1][j] * 2 +
+                  data[i][j - 1] * 2 +
+                  data[i][j + 1] * 2 +
+                  data[i - 1][j - 1] +
+                  data[i + 1][j + 1] +
+                  data[i - 1][j + 1] +
+                  data[i + 1][j - 1]) /
+                16;
+            } else if (
+              filter === "edge" &&
+              i > 0 &&
+              i < size - 1 &&
+              j > 0 &&
+              j < size - 1
+            ) {
+              // Sobel edge detection
+              const gx =
+                data[i + 1][j - 1] +
+                2 * data[i + 1][j] +
+                data[i + 1][j + 1] -
+                (data[i - 1][j - 1] + 2 * data[i - 1][j] + data[i - 1][j + 1]);
+              const gy =
+                data[i - 1][j + 1] +
+                2 * data[i][j + 1] +
+                data[i + 1][j + 1] -
+                (data[i - 1][j - 1] + 2 * data[i][j - 1] + data[i + 1][j - 1]);
+              value = Math.sqrt(gx * gx + gy * gy);
+            } else if (
+              filter === "sharpen" &&
+              i > 0 &&
+              i < size - 1 &&
+              j > 0 &&
+              j < size - 1
+            ) {
+              // Sharpening filter
+              value =
+                5 * data[i][j] -
+                data[i - 1][j] -
+                data[i + 1][j] -
+                data[i][j - 1] -
+                data[i][j + 1];
+            }
+            row.push(value);
+          }
+          filtered.push(row);
+        }
+        return filtered;
+      }
+
+      // Rotate 2D data
+      function rotate2D(data, angle) {
+        const size = data.length;
+        const rotated = [];
+        const rad = (angle * Math.PI) / 180;
+        const cos = Math.cos(rad);
+        const sin = Math.sin(rad);
+        const center = size / 2;
+
+        for (let i = 0; i < size; i++) {
+          const row = [];
+          for (let j = 0; j < size; j++) {
+            // Rotate coordinates
+            const x = i - center;
+            const y = j - center;
+            const newX = Math.round(x * cos - y * sin + center);
+            const newY = Math.round(x * sin + y * cos + center);
+
+            if (newX >= 0 && newX < size && newY >= 0 && newY < size) {
+              row.push(data[newX][newY]);
+            } else {
+              row.push(0);
+            }
+          }
+          rotated.push(row);
+        }
+        return rotated;
+      }
+
+      // Update 2D Signal Plot
+      function updateSignal2D() {
+        const pattern = document.getElementById("pattern2D").value;
+        const size = parseInt(document.getElementById("gridSize").value);
+        const filter = document.getElementById("filter2D").value;
+        const rotation = parseFloat(document.getElementById("rotation").value);
+
+        document.getElementById("rotValue").textContent = rotation;
+
+        // Generate original pattern
+        let original = generate2DPattern(pattern, size);
+
+        // Apply rotation
+        let processed = rotation > 0 ? rotate2D(original, rotation) : original;
+
+        // Apply filter
+        if (filter !== "none") {
+          processed = apply2DFilter(processed, filter);
+        }
+
+        // Create heatmap for original
+        const trace1 = {
+          z: original,
+          type: "heatmap",
+          colorscale: "Viridis",
+          showscale: true,
+        };
+
+        const layout1 = {
+          title: "Sinyal 2D Original",
+          xaxis: { title: "X" },
+          yaxis: { title: "Y" },
+          width: 500,
+          height: 400,
+        };
+
+        // Create heatmap for processed
+        const trace2 = {
+          z: processed,
+          type: "heatmap",
+          colorscale: "Plasma",
+          showscale: true,
+        };
+
+        const layout2 = {
+          title: `Processed (Filter: ${filter}, Rotasi: ${rotation}°)`,
+          xaxis: { title: "X" },
+          yaxis: { title: "Y" },
+          width: 500,
+          height: 400,
+        };
+
+        Plotly.newPlot("plot2D_original", [trace1], layout1, {
+          responsive: true,
+        });
+        Plotly.newPlot("plot2D_processed", [trace2], layout2, {
+          responsive: true,
+        });
+
+        // Update analysis
+        const analysisText = {
+          none: "Sinyal 2D tanpa filter. Rotasi mengubah orientasi spasial pola.",
+          blur: "Gaussian blur mengurangi noise dan detail tajam dengan rata-rata weighted.",
+          edge: "Edge detection mengidentifikasi perubahan intensitas yang tajam (gradien tinggi).",
+          sharpen:
+            "Sharpening filter meningkatkan kontras tepi dan detail dalam sinyal.",
+        };
+
+        document.getElementById("analysis2D").textContent =
+          `Pattern: ${pattern}. ${
+            analysisText[filter] || analysisText["none"]
+          } ` +
+          `Ukuran grid ${size}x${size} memberikan resolusi ${
+            size * size
+          } pixel.`;
+      }
+
+      // Convolution function
+      function convolve(signal1, signal2) {
+        const n = signal1.length;
+        const m = signal2.length;
+        const result = new Array(n + m - 1).fill(0);
+
+        for (let i = 0; i < n; i++) {
+          for (let j = 0; j < m; j++) {
+            result[i + j] += signal1[i] * signal2[j];
+          }
+        }
+
+        // Normalize and trim to original length
+        const max = Math.max(...result.map(Math.abs));
+        return result.slice(0, n).map((x) => x / max);
+      }
+
+      // Update combination plot
+      function updateCombination() {
+        const signal1Type = document.getElementById("signal1").value;
+        const signal2Type = document.getElementById("signal2").value;
+        const operation = document.getElementById("combOp").value;
+        const weight = parseFloat(document.getElementById("weight").value);
+
+        document.getElementById("weightValue").textContent = weight.toFixed(2);
+
+        // Generate signals
+        const t = linspace(0, 5, 500);
+        const signal1 = generateSignal(signal1Type, t, 2, 1, 0);
+        const signal2 = generateSignal(signal2Type, t, 3, 0.8, Math.PI / 4);
+
+        // Combine signals
+        let combined;
+        let formula = "";
+
+        switch (operation) {
+          case "add":
+            combined = signal1.map(
+              (x, i) => weight * x + (1 - weight) * signal2[i]
+            );
+            formula = `y(t) = ${weight.toFixed(2)} × signal1(t) + ${(
+              1 - weight
+            ).toFixed(2)} × signal2(t)`;
+            break;
+          case "subtract":
+            combined = signal1.map((x, i) => x - weight * signal2[i]);
+            formula = `y(t) = signal1(t) - ${weight.toFixed(2)} × signal2(t)`;
+            break;
+          case "multiply":
+            combined = signal1.map((x, i) => x * signal2[i]);
+            formula = "y(t) = signal1(t) × signal2(t)";
+            break;
+          case "convolve":
+            combined = convolve(signal1.slice(0, 50), signal2.slice(0, 50));
+            formula = "y(t) = signal1(t) * signal2(t) (konvolusi)";
+            break;
+        }
+
+        // Create traces
+        const trace1 = {
+          x: t,
+          y: signal1,
+          name: "Signal 1",
+          type: "scatter",
+          line: { color: "#667eea", width: 1.5 },
+          opacity: 0.7,
+        };
+
+        const trace2 = {
+          x: t,
+          y: signal2,
+          name: "Signal 2",
+          type: "scatter",
+          line: { color: "#764ba2", width: 1.5 },
+          opacity: 0.7,
+        };
+
+        const trace3 = {
+          x: operation === "convolve" ? t.slice(0, combined.length) : t,
+          y: combined,
+          name: "Combined",
+          type: "scatter",
+          line: { color: "#ff6b6b", width: 3 },
+        };
+
+        const layout = {
+          title: "Kombinasi Sinyal",
+          xaxis: { title: "Waktu (s)" },
+          yaxis: { title: "Amplitudo" },
+          showlegend: true,
+          hovermode: "x unified",
+          plot_bgcolor: "#f8f9fa",
+        };
+
+        Plotly.newPlot("plotCombination", [trace1, trace2, trace3], layout, {
+          responsive: true,
+        });
+
+        // Update formula and result
+        document.getElementById("combinationFormula").textContent = formula;
+
+        const resultText = {
+          add: `Penjumlahan weighted menghasilkan interferensi konstruktif/destruktif. Dengan bobot α=${weight.toFixed(
+            2
+          )}, sinyal 1 mendominasi ${(weight * 100).toFixed(0)}% dari hasil.`,
+          subtract: `Pengurangan menghilangkan komponen sinyal 2 dari sinyal 1. Useful untuk noise cancellation.`,
+          multiply: `Perkalian menghasilkan modulasi amplitudo. Frekuensi hasil = |f1 ± f2|.`,
+          convolve: `Konvolusi adalah operasi fundamental dalam sistem LTI. Output menunjukkan respons sistem.`,
+        };
+
+        document.getElementById("combinationResult").textContent =
+          resultText[operation];
+      }
+
+      // Initialize on load
+      window.onload = function () {
+        updateSignal1D();
+      };
+    </script>
+  </body>
+</html>
