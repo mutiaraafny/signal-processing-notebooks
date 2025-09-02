@@ -29,7 +29,7 @@ Anda bisa menjalankan file Jupyter Notebook ini di berbagai lingkungan.
     * Pastikan Anda sudah menginstal **Python** dan **Git**.
     * Kloning repositori ini ke komputer Anda:
         ```bash
-        git clone [https://github.com/nama-organisasi/signal-processing-notebooks.git](https://github.com/nama-organisasi/signal-processing-notebooks.git)
+        git clone [https://github.com/mutiaraafny/signal-processing-notebooks.git](https://github.com/mutiaraafny/signal-processing-notebooks.git)
         cd signal-processing-notebooks
         ```
     * Instal library yang diperlukan:
