@@ -8,11 +8,11 @@ Proyek ini bertujuan untuk membantu memahami operasi-operasi fundamental pada si
 
 ### Daftar Isi
 
-* **`notebooks/Operasi-Sinyal-Dasar.ipynb`**: Notebook utama yang menjelaskan dan mengimplementasikan operasi-operasi berikut:
+* **`notebooks/operasi-dasar-pengolahan-sinyal-digital.ipynb`**: Notebook utama yang menjelaskan dan mengimplementasikan operasi-operasi berikut:
     * **Sinyal 1D**: Penskalaan, penggeseran, penjumlahan, dan perkalian sinyal.
     * **Sinyal 2D**: Penerapan filter (blur, edge detection, sharpen) pada gambar.
     * **Kombinasi Sinyal**: Penjumlahan dan konvolusi dua sinyal.
-* **`html/visualisasi-interaktif.html`**: File HTML asli yang menjadi dasar proyek ini, menampilkan visualisasi interaktif melalui JavaScript dan Plotly.
+* **`html/signal-processing.html`**: File HTML asli yang menjadi dasar proyek ini, menampilkan visualisasi interaktif melalui JavaScript dan Plotly.
 
 ---
 
@@ -22,7 +22,7 @@ Anda bisa menjalankan file Jupyter Notebook ini di berbagai lingkungan.
 
 1.  **Menggunakan Google Colab atau Kaggle:**
     * Cara termudah karena tidak memerlukan instalasi.
-    * Unggah file `Operasi-Sinyal-Dasar.ipynb` ke Google Colab atau Kaggle Notebooks.
+    * Unggah file `operasi-dasar-pengolahan-sinyal-digital.ipynb` ke Google Colab atau Kaggle Notebooks.
     * Jalankan setiap sel kode secara berurutan.
 
 2.  **Menjalankan Secara Lokal (VS Code / Jupyter):**
@@ -36,7 +36,7 @@ Anda bisa menjalankan file Jupyter Notebook ini di berbagai lingkungan.
         ```bash
         pip install numpy matplotlib scipy
         ```
-    * Buka Jupyter Notebook atau VS Code, lalu buka file `Operasi-Sinyal-Dasar.ipynb` dan jalankan sel-sel kodenya.
+    * Buka Jupyter Notebook atau VS Code, lalu buka file `operasi-dasar-pengolahan-sinyal-digital.ipynb` dan jalankan sel-sel kodenya.
 
 ---
 
