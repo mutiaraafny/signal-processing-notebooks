@@ -60,8 +60,6 @@ Proyek ini merupakan hasil kerja kolaboratif dari anggota tim:
 | **Shafiyyah Al-Khansa** | Implementasi operasi kombinasi dan refactoring kode | [@shafiiyyaa](https://github.com/shafiiyyaa) |
 | **Rana Rohadatul** | Penulisan dokumentasi, termasuk README dan komentar kode | [@urikkqum](https://github.com/urikkqum) |
 
-Anda bisa melihat riwayat kontribusi secara detail di [halaman kontributor repositori](https://github.com/nama-organisasi/signal-processing-notebooks/graphs/contributors) atau di [log commit](https://github.com/nama-organisasi/signal-processing-notebooks/commits).
-
 ---
 
 ### Lisensi
